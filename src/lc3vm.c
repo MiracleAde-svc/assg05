@@ -219,6 +219,37 @@ void push(uint16_t val)
 void pop()
 { reg[R6] += 1; }
 
+/**
+ * @brief enable system clock
+ *
+ * Set bit 15 of the MCR (Master Control Register) to 1, enabling the
+ * system run latch. While this bit is set, the fetch-decode-execute
+ * cycle continues running.
+ */
+void enable_clock()
+{ reg[MCR] |= 0x8000; }
+
+/**
+ * @brief disable system clock
+ *
+ * Clear bit 15 of the MCR (Master Control Register) to 0, disabling
+ * the system run latch. This causes the fetch-decode-execute cycle
+ * to terminate cleanly on its next iteration.
+ */
+void disable_clock()
+{ reg[MCR] &= ~0x8000; }
+
+/**
+ * @brief test if system is running
+ *
+ * Return true if the MCR run latch (bit 15) is set, indicating the
+ * system clock is enabled and the machine should continue executing.
+ *
+ * @returns bool true if the clock is enabled, false otherwise
+ */
+bool is_running()
+{ return (reg[MCR] & 0x8000) != 0; }
+
 /** @brief add operation
  *
  * Add two values together and store result in destination register.

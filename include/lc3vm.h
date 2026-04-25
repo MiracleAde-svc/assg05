@@ -119,6 +119,11 @@ void set_priority(uint16_t pri);
 void push(uint16_t val);
 void pop();
 
+// MCR clock latch manipulation functions (task 3)
+void enable_clock();
+void disable_clock();
+bool is_running();
+
 // microarchitecture opcode implementations
 void add(uint16_t i);
 void andlc(uint16_t i);
