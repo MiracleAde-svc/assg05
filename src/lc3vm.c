@@ -168,6 +168,32 @@ void user_mode()
 void supervisor_mode()
 { reg[PSR] &= ~0x8000; }
 
+/**
+ * @brief get current priority level
+ *
+ * Return the current priority level stored in bits 10-8 of the PSR
+ * (Processor Status Register). Priority is a 3-bit value from 0 to 7.
+ *
+ * @returns uint16_t the current priority level (0-7)
+ */
+uint16_t priority()
+{ return (reg[PSR] >> 8) & 0x7; }
+
+/**
+ * @brief set priority level
+ *
+ * Set the priority level bits (bits 10-8) of the PSR to the given
+ * value. Only the low 3 bits of the parameter are used. All other
+ * PSR bits are preserved.
+ *
+ * @param pri uint16_t the new priority level (only low 3 bits used)
+ */
+void set_priority(uint16_t pri)
+{
+  reg[PSR] &= ~0x0700;
+  reg[PSR] |= (pri & 0x7) << 8;
+}
+
 /** @brief add operation
  *
  * Add two values together and store result in destination register.

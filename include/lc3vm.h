@@ -111,6 +111,10 @@ bool is_user_mode();
 void user_mode();
 void supervisor_mode();
 
+// PSR priority functions (task 1.2)
+uint16_t priority();
+void set_priority(uint16_t pri);
+
 // microarchitecture opcode implementations
 void add(uint16_t i);
 void andlc(uint16_t i);
