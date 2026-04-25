@@ -1,9 +1,9 @@
 /** @file lc3vm.h
  * @brief LC-3 VM API
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Iyanuoluwa Alegbeleye
+ * @note   cwid: 50323446
+ * @date   Spring 2026
  * @note   ide:  g++ 8.2.0 / GNU Make 4.2.1
  *
  * Header include file for LC-3 simulator API/functions.
@@ -105,6 +105,11 @@ uint16_t sign_extend(uint16_t bits, int size);
 
 // Update condition code flags
 void update_flags(enum registr r);
+
+// PSR privilege mode functions
+bool is_user_mode();
+void user_mode();
+void supervisor_mode();
 
 // microarchitecture opcode implementations
 void add(uint16_t i);

@@ -1,9 +1,9 @@
 /** @file lc3vm.c
  * @brief LC-3 VM Implementation
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Iyanuoluwa Alegbeleye
+ * @note   cwid: 50323446
+ * @date   Spring 2026
  * @note   ide:  g++ 8.2.0 / GNU Make 4.2.1
  *
  * Implementation of LC-3 VM/Microarchitecture simulator.  Functions
@@ -48,9 +48,7 @@ uint16_t PC_START = 0x3000;
  *   simply reads and returns the 16 bits stored at the indicated address.
  */
 uint16_t mem_read(uint16_t address)
-{
-  return mem[address];
-}
+{ return mem[address]; }
 
 /** @brief memory write, transfer to memory
  *
@@ -68,9 +66,7 @@ uint16_t mem_read(uint16_t address)
  *   character, or some other type of data.
  */
 void mem_write(uint16_t address, uint16_t val)
-{
-  mem[address] = val;
-}
+{ mem[address] = val; }
 
 /** @brief sign extend bits
  *
@@ -143,6 +139,34 @@ void update_flags(enum registr r)
     reg[PSR] |= FP;
   }
 }
+/**
+ * @brief test if currently in user mode
+ *
+ * Test bit 15 of the PSR (Processor Status Register) to determine
+ * if the machine is currently running in user mode (bit 15 = 1) or
+ * supervisor mode (bit 15 = 0).
+ *
+ * @returns bool true if currently in user mode, false if currently
+ *   in supervisor mode.
+ */
+bool is_user_mode()
+{ return (reg[PSR] & 0x8000) != 0; }
+
+/** @brief switch to user mode
+ *
+ * Set bit 15 of the PSR (Processor Status Register) to 1 to switch
+ * the machine into user mode.
+ */
+void user_mode()
+{ reg[PSR] |= 0x8000; }
+
+/** @brief switch to supervisor mode
+ *
+ * Clear bit 15 of the PSR (Processor Status Register) to 0 to switch
+ * the machine into supervisor mode.
+ */
+void supervisor_mode()
+{ reg[PSR] &= ~0x8000; }
 
 /** @brief add operation
  *
@@ -324,9 +348,7 @@ void ldr(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void lea(uint16_t i)
-{
-  reg[DR(i)] = reg[RPC] + PCOFF9(i);
-}
+{ reg[DR(i)] = reg[RPC] + PCOFF9(i); }
 
 /** @brief store to PC + offset
  *
@@ -342,9 +364,7 @@ void lea(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void st(uint16_t i)
-{
-  mem_write(reg[RPC] + PCOFF9(i), reg[DR(i)]);
-}
+{ mem_write(reg[RPC] + PCOFF9(i), reg[DR(i)]); }
 
 /** @brief store indirect
  *
@@ -361,9 +381,7 @@ void st(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void sti(uint16_t i)
-{
-  mem_write(mem_read(reg[RPC] + PCOFF9(i)), reg[DR(i)]);
-}
+{ mem_write(mem_read(reg[RPC] + PCOFF9(i)), reg[DR(i)]); }
 
 /** @brief store offset relative to base address
  *
@@ -379,9 +397,7 @@ void sti(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void str(uint16_t i)
-{
-  mem_write(reg[SR1(i)] + OFF6(i), reg[DR(i)]);
-}
+{ mem_write(reg[SR1(i)] + OFF6(i), reg[DR(i)]); }
 
 /** @brief jump unconditionally
  *
@@ -395,9 +411,7 @@ void str(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void jmp(uint16_t i)
-{
-  reg[RPC] = reg[SR1(i)];
-}
+{ reg[RPC] = reg[SR1(i)]; }
 
 /** @brief conditional branch
  *
