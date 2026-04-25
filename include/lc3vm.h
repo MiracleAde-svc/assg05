@@ -115,6 +115,10 @@ void supervisor_mode();
 uint16_t priority();
 void set_priority(uint16_t pri);
 
+// stack push and pop functions (task 2)
+void push(uint16_t val);
+void pop();
+
 // microarchitecture opcode implementations
 void add(uint16_t i);
 void andlc(uint16_t i);

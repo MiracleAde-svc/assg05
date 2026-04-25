@@ -194,6 +194,31 @@ void set_priority(uint16_t pri)
   reg[PSR] |= (pri & 0x7) << 8;
 }
 
+/**
+ * @brief push value onto stack
+ *
+ * Push the given value onto the current stack. R6 holds the current
+ * stack pointer. Decrement R6 to grow the stack downward, then write
+ * the value to the new top of stack using mem_write.
+ *
+ * @param val uint16_t the value to push onto the stack
+ */
+void push(uint16_t val)
+{
+  reg[R6] -= 1;
+  mem_write(reg[R6], val);
+}
+
+/**
+ * @brief pop value off stack
+ *
+ * Pop the top value off the current stack by incrementing R6 to
+ * shrink the stack upward. The popped value remains in memory but
+ * is no longer considered part of the stack.
+ */
+void pop()
+{ reg[R6] += 1; }
+
 /** @brief add operation
  *
  * Add two values together and store result in destination register.
