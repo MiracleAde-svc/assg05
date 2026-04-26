@@ -563,7 +563,22 @@ void jsr(uint16_t i)
  * @param i The instruction.  The bits of the instruction we are
  *   executing.
  */
-void rti(uint16_t i) {}
+void rti(uint16_t i)
+{
+  // restore PSR and PC from supervisor stack
+  reg[PSR] = mem_read(reg[R6]);
+  pop();
+  // restore RPC from supervisor stack
+  reg[RPC] = mem_read(reg[R6]);
+  pop();
+
+  // if we are returning to user mode, update the stack to the user stack
+  if (is_user_mode())
+  {
+    reg[SSP] = reg[R6];
+    reg[R6] = reg[USP];
+  }
+}
 
 /** @brief reserved
  *
