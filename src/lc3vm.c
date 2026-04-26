@@ -48,7 +48,14 @@ uint16_t PC_START = 0x3000;
  *   simply reads and returns the 16 bits stored at the indicated address.
  */
 uint16_t mem_read(uint16_t address)
-{ return mem[address]; }
+{
+  // if reading the keyboard data register, clear the keyboard status ready bit
+  if (address == KBDR_ADDR)
+  {
+    iomap[KBSR] &= ~0x8000;
+  }
+  return mem[address];
+}
 
 /** @brief memory write, transfer to memory
  *
@@ -66,7 +73,14 @@ uint16_t mem_read(uint16_t address)
  *   character, or some other type of data.
  */
 void mem_write(uint16_t address, uint16_t val)
-{ mem[address] = val; }
+{
+  // if writing the display data register, clear the display status ready bit
+  if (address == DDR_ADDR)
+  {
+    iomap[DSR] &= ~0x8000;
+  }
+  mem[address] = val;
+}
 
 /** @brief sign extend bits
  *
