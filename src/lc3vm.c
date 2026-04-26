@@ -589,7 +589,26 @@ void res(uint16_t i) {}
  *   executing.  The low 7 bits i[7:0] contain the trap service vector
  *   index to be invoked.
  */
-void trap(uint16_t i) {}
+void trap(uint16_t i)
+{
+  // save the current PSR before any modifications
+  uint16_t temp = reg[PSR];
+
+  // if currently in user mode, switch to supervisor mode and swap pointers
+  if (is_user_mode())
+  {
+    reg[USP] = reg[R6];
+    reg[R6] = reg[SSP];
+    supervisor_mode();
+  }
+
+  // push the return PC, then the saved PSR onto the supervisor stack
+  push(reg[RPC]);
+  push(temp);
+
+  // jump to the trap service routine address from the trap vector table
+  reg[RPC] = mem_read(TRP(i));
+}
 
 /**
  * LC-3 instruction microcode store / lookup table.  Need to define array
