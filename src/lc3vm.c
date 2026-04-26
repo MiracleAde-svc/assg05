@@ -49,6 +49,12 @@ uint16_t PC_START = 0x3000;
  */
 uint16_t mem_read(uint16_t address)
 {
+  // access control violation: user mode cannot read priviledge memory
+  if (is_user_mode() && (address < 0x3000 || address > 0xFDFF))
+  {
+    except(0x02);
+    return 0x0;
+  }
   // if reading the keyboard data register, clear the keyboard status ready bit
   if (address == KBDR_ADDR)
   {
@@ -74,6 +80,12 @@ uint16_t mem_read(uint16_t address)
  */
 void mem_write(uint16_t address, uint16_t val)
 {
+  // access control violation: user mode cannot write priviledge memory
+  if (is_user_mode() && (address < 0x3000 || address > 0xFDFF))
+  {
+    except(0x02);
+    return;
+  }
   // if writing the display data register, clear the display status ready bit
   if (address == DDR_ADDR)
   {
@@ -579,12 +591,23 @@ void jsr(uint16_t i)
  */
 void rti(uint16_t i)
 {
-  // restore PSR and PC from supervisor stack
-  reg[PSR] = mem_read(reg[R6]);
+  // priviledge mode violation: RTI is only valid in supervisor mode
+  if (is_user_mode())
+  {
+    except(0x00);
+    return;
+  }
+
+  // Pop PSR and PC from supervisor stack into local variables FIRST,
+  // so we don't accidentally enter user mode mid-pop and trigger ACV
+  uint16_t saved_psr = mem_read(reg[R6]);
   pop();
-  // restore RPC from supervisor stack
-  reg[RPC] = mem_read(reg[R6]);
+  uint16_t saved_pc = mem_read(reg[R6]);
   pop();
+
+  // Now safe to assign — we're still in supervisor mode for the reads
+  reg[PSR] = saved_psr;
+  reg[RPC] = saved_pc;
 
   // if we are returning to user mode, update the stack to the user stack
   if (is_user_mode())
@@ -604,7 +627,11 @@ void rti(uint16_t i)
  *   destination and source register operands, and to extract the
  *   second source register or the immediate value encoded in the
  */
-void res(uint16_t i) {}
+void res(uint16_t i)
+{
+  // illegal opcode exception: this opcode is reserved and should not be used
+  except(0x01);
+}
 
 /** @brief trap instruction
  *
@@ -663,6 +690,39 @@ op_ex_f op_ex[NUMOPS] = {/*0000*/ br,
   /*1101*/ res,
   /*1110*/ lea,
   /*1111*/ trap};
+
+/**
+ * @brief exception handler
+ *
+ * Initiate an exception. Similar to a trap, but the exception vector
+ * indexes into the exception vector table starting at 0x0100. Saves
+ * the current PSR, switches to supervisor mode (if needed), pushes
+ * the original PC and PSR onto the supervisor stack, then jumps to
+ * the exception handler routine.
+ *
+ * @param i uint16_t the exception vector (0x00 privilege violation,
+ *   0x01 illegal opcode, 0x02 access control violation).
+ */
+void except(uint16_t i)
+{
+  // save the current PSR before any modifications
+  uint16_t temp = reg[PSR];
+
+  // if currently in user mode, switch to supervisor mode and swap stack pointers
+  if (is_user_mode())
+  {
+    reg[USP] = reg[R6];
+    reg[R6] = reg[SSP];
+    supervisor_mode();
+  }
+
+  // push the return PC, then push the saved PSR onto the supervisor stack
+  push(reg[RPC]);
+  push(temp);
+
+  // jump to the exception handler at offset 0x0100 in the exception vector table
+  reg[RPC] = mem_read(TRP(i) + 0x0100);
+}
 
 /** @brief initialize LC-3 simulator
  *

@@ -163,6 +163,7 @@ void ld_img(char* fname);
 // task 3 MCR clock latch manipulation
 
 // task 7 exceptions
+void except(uint16_t i);
 
 #ifdef TEST
 } // end extern C for C++ test runner

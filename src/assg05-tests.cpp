@@ -24,12 +24,12 @@ using namespace std;
 #define task4_1
 #define task4_2
 #define task5
-#undef task6_1
-#undef task6_2
-#undef task7_1
-#undef task7_2
-#undef task7_3
-#undef task7_4
+#define task6_1
+#define task6_2
+#define task7_1
+#define task7_2
+#define task7_3
+#define task7_4
 
 /**
  * @brief Task 1: Test privilege and priority functions in PSR
